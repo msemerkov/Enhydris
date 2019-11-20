@@ -12,7 +12,7 @@ Vagrant.configure("2") do |config|
 
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://vagrantcloud.com/search.
-  config.vm.box = "generic/centos8"
+  config.vm.box = "centos/7"
 
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs
@@ -43,7 +43,7 @@ Vagrant.configure("2") do |config|
   # the path on the host to the actual folder. The second argument is
   # the path on the guest to mount the folder. And the optional third
   # argument is a set of non-required options.
-  # config.vm.synced_folder "../data", "/vagrant_data"
+  # config.vm.synced_folder "src", "/home/vagrant"
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
@@ -65,19 +65,18 @@ Vagrant.configure("2") do |config|
   # documentation for more information about their specific syntax and use.
   config.vm.provision "shell", inline: <<-SHELL
     yum update
-    yum install h2o-2.2.6-1.el6.x86_64.rpm -y
+    yum install wget -y
+    yum install gcc openssl-devel bzip2-devel sqlite-devel -y
 
     cd /usr/src/
-    wget -c https://bitbucket.org/pypy/pypy/downloads/pypy3.6-v7.2.0-ppc64le.tar.bz2
-    tar -xjf pypy3.6-v7.2.0-ppc64le.tar.bz2
-    pypy=/usr/src/pypy3.6-v7.2.0-src/
-    
-    yum -y install gcc make libffi-devel pkgconfig zlib-devel bzip2-devel \
-    sqlite-devel ncurses-devel expat-devel openssl-devel tk-devel \
-    gdbm-devel python-cffi\
-    xz-devel
-    
-    yum install pypy -y
-    pypy get-pip.py
+    wget https://www.python.org/ftp/python/3.8.0/Python-3.8.0.tgz
+    tar xzf Python-3.8.0.tgz
+    cd Python-3.8.0
+    ./configure --enable-optimizations
+    make altinstall
+
+    cd /usr/src/
+    wget -c https://dl.bintray.com/tatsushid/h2o-rpm/centos/7/x86_64/h2o-2.2.6-1.el7.x86_64.rpm
+    yum install h2o-2.2.6-1.el7.x86_64.rpm -y
   SHELL
 end
